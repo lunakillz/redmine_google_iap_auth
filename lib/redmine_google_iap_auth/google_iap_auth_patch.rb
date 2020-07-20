@@ -8,8 +8,8 @@ require "uri"
 
 module RedmineGoogleIAPAuth
     def find_current_user
-        assertion = request.env["HTTP_X_GOOG_IAP_JWT_ASSERTION"]
-        Rails.logger.info("assertion #{assertion}")
+        #assertion = request.env["HTTP_X_GOOG_IAP_JWT_ASSERTION"]
+        #Rails.logger.info("assertion #{assertion}")
         #email, _user_id = validate_assertion assertion
         user = nil
 
@@ -56,25 +56,5 @@ module RedmineGoogleIAPAuth
             user.update_last_login_on! if user
 
             user
-    end
-
-    def certificates
-        uri = URI.parse "https://www.gstatic.com/iap/verify/public_key"
-        response = Net::HTTP.get_response uri
-        JSON.parse response.body
-    end
-
-
-    def validate_assertion assertion
-        a_header = Base64.decode64 assertion.split(".")[0]
-        key_id = JSON.parse(a_header)["kid"]
-        certs = certificates
-        cert = OpenSSL::PKey::EC.new certs[key_id]
-        info = JWT.decode assertion, cert, true, algorithm: "ES256", audience: Setting.plugin_redmine_google_iap_auth['audience']
-        return info[0]["email"], info[0]["sub"]
-      
-    rescue StandardError => e
-    puts "Failed to validate assertion: #{e}"
-    [nil, nil]
     end
 end
