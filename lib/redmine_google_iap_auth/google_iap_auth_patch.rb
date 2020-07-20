@@ -69,7 +69,8 @@ module RedmineGoogleIAPAuth
     def validate_assertion assertion
         a_header = Base64.decode64 assertion.split(".")[0]
         key_id = JSON.parse(a_header)["kid"]
-        cert = OpenSSL::PKey::EC.new settings.certificates[key_id]
+        certs = certificates
+        cert = OpenSSL::PKey::EC.new certs[key_id]
         info = JWT.decode assertion, cert, true, algorithm: "ES256", audience: Setting.plugin_redmine_google_iap_auth['audience']
         return info[0]["email"], info[0]["sub"]
       
