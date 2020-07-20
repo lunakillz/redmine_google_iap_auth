@@ -63,8 +63,7 @@ module RedmineGoogleIAPAuth
         response = Net::HTTP.get_response uri
         JSON.parse response.body
     end
-    
-    set :certificates, certificates
+
 
     def validate_assertion assertion
         a_header = Base64.decode64 assertion.split(".")[0]
